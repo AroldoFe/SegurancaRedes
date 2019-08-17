@@ -1,7 +1,7 @@
 # @author Aroldo Felix
 # @param msg_file Caminho do arquivo que se deseja ler
 # @return conteúdo do arquivo
-def ler_arquivo(msg_file):
+def ler_arquivo(msg_file): # OK
 	arq = open(msg_file, 'r')
 	texto = arq.read()
 	arq.close()
@@ -16,53 +16,98 @@ def escrever_arquivo(msg, file, chave):
 	arq.write(msg)
 	arq.close()
 
-def get_alfabeto():
-	alfabeto = [['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'],
-				['b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a'],
-				['c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b'],
-				['d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c'],
-				['e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d'],
-				['f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e'],
-				['g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f'],
-				['h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g'],
-				['i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h'],
-				['j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i'],
-				['k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j'],
-				['l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k'],
-				['m','n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l'],
-				['n','o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m'],
-				['o','p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n'],
-				['p','q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o'],
-				['q','r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p'],
-				['r','s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q'],
-				['s','t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r'],
-				['t','u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s'],
-				['u','v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t'],
-				['v','w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u'],
-				['w','x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v'],
-				['x','y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w'],
-				['y','z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x'],
-				['z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y']]
+def get_matriz_alfabeto():
+	alfabeto = []
 
-def decifrar(mensagem, alfabeto, chave):
-	txt_msg_decifrada = ""
+	num_letras = ord('z')-ord('a')+1
+
+	for i in range(0, num_letras):
+		lista = []
+		for j in range(0, num_letras):
+			lista.append((j + i) % num_letras)
+		alfabeto.append(lista)
+
+	return alfabeto
+
+def projecao_palavras(mensagem, chave):
+	txt_msg = ""
+
+	for i in range(len(mensagem)//len(chave)):
+		txt_msg += chave
+
+	txt_msg += chave[:len(mensagem)%len(chave)]
+
+	return txt_msg
+
+def projecao_letra(letra):
+	return ord(letra) - ord('a');
+
+def vigenere(msg_encu, msg_proje):
+	alfabeto = get_matriz_alfabeto()
+	texto_decript = ""
+
+	for i in range(len(msg_encu)):
+		# Pego a linha que contem a letra X
+		linha = alfabeto[projecao_letra(msg_proje[i])]
+		# Pego o índice que contem a letra Y
+		pos = linha.index(projecao_letra(msg_encu[i]))
+		# Identifico que letra é
+		letra = chr(pos + ord('a'))
+		# Adiciono ao texto
+		texto_decript += letra
 	
-	for i in range(len(mensagem)):
-		if mensagem[i] not in alfabeto:
-			txt_msg_decifrada += mensagem[i]
-			continue
-		txt_msg_decifrada += alfabeto[(alfabeto.index(mensagem[i]) - chave) % len(alfabeto)]
+	return texto_decript
 
-	return txt_msg_decifrada
+def voltar_msg_original(mensagem, decriptada):
+	msg_decript = ""
+	ind_dec = 0
+
+	for i in range(len(mensagem)):
+		if(mensagem[i] == " "):
+			msg_decript += " "
+			continue
+		else:
+			msg_decript += decriptada[ind_dec]
+			ind_dec += 1
+
+	return msg_decript
+
+# mensagem é a mensagem normal
+# chaves guarda a letra da musica
+def decifrar(mensagem, chaves):
+	# retiro os espaços pra melhor projeção
+	mensagem_encurtada = mensagem.replace(" ", "")
+	# separo as senhas
+	chaves = list(set(chaves.split(" ")))
+	# para cada uma das senhas
+	for chave in chaves:
+		# projetar cada senha na mensagem sem espaços
+		msg_projetada = projecao_palavras(mensagem_encurtada, chave)
+		# decriptar a mensagem
+		txt_msg = vigenere(mensagem_encurtada, msg_projetada)
+		# voltar com os espaços originais
+		txt_msg_decriptada = voltar_msg_original(mensagem, txt_msg)
+		escrever_arquivo(txt_msg_decriptada, "vigenere", chave)
+
+def remove_caracteres_especiais(texto):
+	final_txt = texto.lower()
+	final_txt = final_txt.replace("\n\n", " ")
+	final_txt = final_txt.replace("\n", " ")
+	final_txt = final_txt.replace(",", "")
+	final_txt = final_txt.replace("?", "")
+	final_txt = final_txt.replace("ç", "c")
+	final_txt = final_txt.replace("é", "e")
+	
+	return final_txt
 
 def main():
-
 	txt_msg = ler_arquivo("mensagem_cifrada.txt")
+	#print(txt_msg)
+	
+	txt_senhas = remove_caracteres_especiais(ler_arquivo("cifra_de_cesar_22.txt"))
+	#print(txt_senhas)
 
-	alfabeto = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-
-	txt_msg_decifrada = decifrar(txt_msg, alfabeto, 22)
-	escrever_arquivo(txt_msg_decifrada, "mensagem_decifrada", 22)
+	decifrar(txt_msg, txt_senhas)
 
 
 if __name__ == '__main__':
