@@ -2,36 +2,24 @@
 # @Data 30/07/2019
 # @Update 30/07/2019
 import sys
-from PIL import Image, ImageDraw, ImageFont
-import numpy as np
+from PIL import Image
 
 # @author Aroldo Felix
-# @param msg_file Caminho do arquivo que se deseja ler
-# @return conteúdo do arquivo
-def ler_arquivo(msg_file):
-	arq = open(msg_file, 'r')
-	texto = arq.read()
-	arq.close()
-	return texto
-
+# @param letra, 3 binários da letra pra esconder no RGB
+# @param pixel, pixel em que se deseja guardar os 3 pixels da letra
+# @return pixel RGB modificado com a letra
 def esconder_letra_pixel(letra, pixel):
 	tupla = []
 	for i in range(3):
 		tupla.append(pixel[i][:-1] + letra[i])
 	return tuple(tupla)
 
-def voltar_inteiro(pixels):
-	for ind, pixel in enumerate(pixels):
-		r,g,b = pixel
-		pixels[ind] = (int(r,2),int(g,2), int(b,2))
-
-	return pixels
-
-
+# @author Aroldo Felix
+# @param mensagem, mensagem que se deseja esconder na matriz de pixels
+# @param pixels_bin, matriz de pixels em binário
+# @return matriz de pixels em binário com a mensagem escondida
 def esconder_mensagem(mensagem, pixels_bin):
 	indice_imagem = 0
-	
-	#print(pixels_bin[:6])
 
 	for caractere in mensagem:
 		# Removendo o '0b'
@@ -52,27 +40,14 @@ def esconder_mensagem(mensagem, pixels_bin):
 		pixel2 = esconder_letra_pixel(letra_bin[3:6], pixel2)
 		pixel3 = esconder_letra_pixel(letra_bin[6:], pixel3)
 
+		# Salvando na matriz
 		pixels_bin[indice_imagem] = pixel1
 		pixels_bin[indice_imagem+1] = pixel2
 		pixels_bin[indice_imagem+2] = pixel3
 
-		#pixels_criptografado.extend([pixel1,pixel2,pixel3])
-
-		# print(pixel1)
-		# print(pixel1_)
-		# print()
-		# print(pixel2)
-		# print(pixel2_)
-		# print()
-		# print(pixel3)
-		# print(pixel3_)
-		# print()
-
 		indice_imagem += 3
 
-	# Esconder o [End Of Text]
-	
-	
+	# Esconder o delimitador [End Of Text]
 	# [End Of Text] invertido
 	letra_bin = "110000000"
 	
@@ -80,19 +55,9 @@ def esconder_mensagem(mensagem, pixels_bin):
 	pixel2 = pixels_bin[indice_imagem+1]
 	pixel3 = pixels_bin[indice_imagem+2]
 
-	pixel1_ = esconder_letra_pixel(letra_bin[:3], pixel1)
-	pixel2_ = esconder_letra_pixel(letra_bin[3:6], pixel2)
-	pixel3_ = esconder_letra_pixel(letra_bin[6:], pixel3)
-
-	# print(pixel1)
-	# print(pixel1_)
-	# print()
-	# print(pixel2)
-	# print(pixel2_)
-	# print()
-	# print(pixel3)
-	# print(pixel3_)
-	# print()
+	pixel1 = esconder_letra_pixel(letra_bin[:3], pixel1)
+	pixel2 = esconder_letra_pixel(letra_bin[3:6], pixel2)
+	pixel3 = esconder_letra_pixel(letra_bin[6:], pixel3)
 
 	pixels_bin[indice_imagem] = pixel1
 	pixels_bin[indice_imagem+1] = pixel2
@@ -103,19 +68,37 @@ def esconder_mensagem(mensagem, pixels_bin):
 	return pixels_bin
 
 # @author Aroldo Felix
+# @param msg_file Caminho do arquivo que se deseja ler
+# @return conteúdo do arquivo
+def ler_arquivo(msg_file):
+	arq = open(msg_file, 'r')
+	texto = arq.read()
+	arq.close()
+	return texto
+
+# @author Aroldo Felix
+# @param pixels matriz de pixels binários
+# @return matriz em inteiro
+def voltar_inteiro(pixels):
+	for ind, pixel in enumerate(pixels):
+		r,g,b = pixel
+		pixels[ind] = (int(r,2),int(g,2), int(b,2))
+
+	return pixels
+
+
+# @author Aroldo Felix
 def main():
-
-	mensagem = ler_arquivo("mensagem.txt")
-	#print(mensagem[0:-1])
-
-	img = Image.open("imagem2.bmp").convert("RGB")
+	# Leitura da mensagem
+	mensagem = ler_arquivo('mensagem.txt')
+	# Leitura da imagem
+	img = Image.open('imagem2.bmp').convert('RGB')
 
 	if(img.size[0]*img.size[1] / 3 < len(mensagem)):
-		print("Erro: mensagem de tamanho não suportado para a imagem!")
+		print('Erro: mensagem de tamanho não suportado para a imagem!')
 		return
-	
+	# Pegando a matriz de pixels
 	pixels = list(img.getdata())
-	#print(pixels[0:5])
 	
 	# tupla com RGB
 	pixels_bin = []
@@ -123,29 +106,21 @@ def main():
 		r,g,b = pixel
 
 		pixels_bin.append((bin(r), bin(g), bin(b)))
-
-	#print(bin(ord('a'))[::-1])
 	
 	# Converter letra em binário e substituir no bit menos significativo da imagem
 	pixels_criptografado = esconder_mensagem(mensagem, pixels_bin)
 	
-	#print(pixels_criptografado[0:6])
 	# Voltar pra inteiro
 
 	mensagem_encriptada = voltar_inteiro(pixels_criptografado)
 
-	img_saida = Image.new("RGB", (img.size[0],img.size[1]))
+	img_saida = Image.new('RGB', (img.size[0],img.size[1]))
 	img_saida.putdata(mensagem_encriptada)
 	img_saida.save('final_img.bmp',
     	format = 'BMP',
         quality = 100)
 	img_saida.close()
 
-
-'''
-	final_img = Image.fromarray(np.array(pixels_criptografado), 'RGB')
-	final_img.save('final_img.bmp')
-'''
 
 if __name__ == '__main__':
 	main()
