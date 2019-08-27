@@ -1,3 +1,4 @@
+import sys
 from PIL import Image
 
 # @author Aroldo Felix
@@ -42,9 +43,13 @@ def revelar_mensagem(pixels_bin):
 	return mensagem
 
 # @author Aroldo Felix
-def main():
+# @param caminho_imagem, caminho da imagem que contém a mensagem escondida
+def main(caminho_imagem):
+
+	if not(caminho_imagem.endswith('.bmp')):
+		caminho_imagem += '.bmp'
 	
-	img = Image.open('final_img.bmp').convert('RGB')
+	img = Image.open(caminho_imagem).convert('RGB')
 
 	pixels = list(img.getdata())
 
@@ -60,4 +65,10 @@ def main():
 	print(mensagem)
 
 if __name__ == '__main__':
-	main()
+	try:
+		main(sys.argv[1])	
+	except Exception as e:
+		print("Imagem de entrada não foi inserida ou foi inserida de maneira errada!")
+		print()
+		print("Esperando algo do tipo: python3 decriptar.py imagem.bmp")
+	

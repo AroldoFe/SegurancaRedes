@@ -1,6 +1,6 @@
 # @Author Aroldo Felix
-# @Data 30/07/2019
-# @Update 30/07/2019
+# @Data 19/08/2019
+# @Update 26/08/2019
 import sys
 from PIL import Image
 
@@ -86,13 +86,21 @@ def voltar_inteiro(pixels):
 
 	return pixels
 
-
 # @author Aroldo Felix
-def main():
+# @param imagem_entrada, caminho da imagem de entrada
+# @param imagem_saida, caminho em que será salva a imagem contendo a mensagem escondida
+def main(imagem_entrada, imagem_saida):
 	# Leitura da mensagem
 	mensagem = ler_arquivo('mensagem.txt')
 	# Leitura da imagem
-	img = Image.open('imagem2.bmp').convert('RGB')
+
+	if not(imagem_entrada.endswith('.bmp')):
+		imagem_entrada += '.bmp'
+
+	if not(imagem_saida.endswith('.bmp')):
+		imagem_saida += '.bmp'
+
+	img = Image.open(imagem_entrada).convert('RGB')
 
 	if(img.size[0]*img.size[1] / 3 < len(mensagem)):
 		print('Erro: mensagem de tamanho não suportado para a imagem!')
@@ -116,11 +124,16 @@ def main():
 
 	img_saida = Image.new('RGB', (img.size[0],img.size[1]))
 	img_saida.putdata(mensagem_encriptada)
-	img_saida.save('final_img.bmp',
+	img_saida.save(imagem_saida,
     	format = 'BMP',
         quality = 100)
 	img_saida.close()
 
 
 if __name__ == '__main__':
-	main()
+	try:
+		main(sys.argv[1], sys.argv[2])
+	except Exception as e:
+		print("Imagem de entrada e/ou de saída não foram inseridas!")
+		print()
+		print('Esperando algo do tipo: python3 esteganografia.py imagem_entrada.bmp imagem_saida.bmp')
