@@ -11,7 +11,7 @@ def ler_arquivo(msg_file): # OK
 # @param msg conteúdo que se deseja escrever no arquivo
 # @param file Caminho do arquivo em que se deseja escrever
 def escrever_arquivo(msg, file, chave):
-	file = "{}_{}.txt".format(file, chave)
+	file = "Mensagens Decriptadas/{}_{}.txt".format(file, chave)
 	arq = open(file, 'w')
 	arq.write(msg)
 	arq.close()
