@@ -16,7 +16,7 @@ def revelar_caractere(pixels):
 		for n in pixel:
 			letra = n[-1] + letra
 
-	return letra
+	return letra[1:]
 
 # @author Aroldo Felix
 # @param pixels_bin, matriz de pixels da imagem em binário
@@ -33,7 +33,7 @@ def revelar_mensagem(pixels_bin):
 		
 		caractere_bin = revelar_caractere([pixel1, pixel2, pixel3])
 		# Caractere delimitador [End Of Text]
-		if(caractere_bin == '000000011'):
+		if(caractere_bin == '00000011'):
 			break
 
 		caractere = converter_letra(caractere_bin)
